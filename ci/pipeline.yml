@@ -1,0 +1,46 @@
+---
+resources:
+- name: cf
+  type: git
+  source:
+    uri: {{github-repository}}
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: review-deployment
+  type: cf
+  source:
+    api: {{cf-api-url}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-org}}
+    space: review
+
+jobs:
+- name: build
+  plan:
+  - get: pal-tracker
+    trigger: true
+  - get: version
+    params: {bump: patch}
+  - task: build and test
+    file: pal-tracker/ci/build.yml
+  - put: pal-tracker-artifacts
+    params:
+      file: build-output/pal-tracker-*.jar
+  - put: version
+    params:
+      file: version/number
+
+- name: deploy-review
+  plan:
+  - get: pal-tracker
+  - get: pal-tracker-artifacts
+    trigger: true
+    passed: [build]
+  - put: review-deployment
+    params:
+      manifest: cf/manifest-review.yml
+      path: cf/pal-tracker-*.jar
+      environment_variables:
+        WELCOME_MESSAGE: "Hello from the review environment"

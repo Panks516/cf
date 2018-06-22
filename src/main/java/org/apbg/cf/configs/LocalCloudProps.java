@@ -8,7 +8,7 @@ import java.util.Properties;
 
 @Configuration
 @Profile("local")
-public class LocalCloudProps {
+public class LocalCloudProps implements CloudConfigProperties{
 
     @Bean
     public Properties cloudProperties() {

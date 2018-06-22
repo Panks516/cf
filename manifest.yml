@@ -1,0 +1,8 @@
+---
+applications:
+- name: cf
+  path: build/libs/cf.jar
+  routes:
+  - route: ps-pal-tracker-review.apps.chicken.pal.pivotal.io
+  env:
+    WELCOME_MESSAGE: Hello from the review environment.
